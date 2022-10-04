@@ -62,7 +62,8 @@ with st.sidebar:
 # Step bar
 if 'step' not in st.session_state:
     st.session_state.step = 0
-step = stx.stepper_bar(steps=['Patient Profile', 'Input Features', 'Get Prediction'], default=st.session_state.step)
+step = stx.stepper_bar(steps=['Patient Profile', 'Input Features', 'Get Prediction'])
+print(step)
 
 # Routing
 if step == 0:

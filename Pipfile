@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 streamlit = "*"
 extra-streamlit-components = "*"
+scikit-learn = "1.0.2"
+
+
 
 [dev-packages]
 

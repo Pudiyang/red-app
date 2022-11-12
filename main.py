@@ -5,7 +5,7 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 from deploy import predict_hd
-
+import matplotlib.pyplot as plt
 
 def check_password():
     def check_password():
@@ -57,11 +57,17 @@ if check_password():
 
         def handle_get_prediction() -> None:
             # interact with AI module
-            go_to_prediction()
-            predict_hd(st.session_state.age, st.session_state.gender, st.session_state.cpt \
+            result, accuracy, fig = predict_hd(st.session_state.age, st.session_state.gender, st.session_state.cpt \
                        , st.session_state.rbp, st.session_state.cho, st.session_state.fbs \
                        , st.session_state.ecg, st.session_state.mhr, st.session_state.ea \
                        , st.session_state.op, st.session_state.ss)
+            if result == 1:
+                st.session_state['result'] = 'YES'
+            else:
+                st.session_state['result'] = 'NO'
+            st.session_state['accuracy'] = accuracy * 100
+            st.session_state['fig'] = fig
+            go_to_prediction()
 
 
         with st.form(key='IF'):
@@ -80,18 +86,38 @@ if check_password():
 
 
     def routing_two():
-        # my_bar = st.progress(0)
-        # for percent_complete in range(100):
-        #     time.sleep(0.05)
-        #     my_bar.progress(percent_complete + 1)
+
         st.markdown("### Prediction Report")
         st1, st2 = st.columns(2)
         st.metric(label="Email", value=st.session_state.patient_id)
         with st1:
-            st.metric(label="Probability", value="25%")
+            st.metric(label="Prediction Result", value=st.session_state.result, help='Yes: has HF, No: Does not have HF')
         with st2:
-            st.metric(label="Accuracy", value="89%")
-        st.button('Share the report')
+            st.metric(label="Accuracy", value=str(st.session_state.accuracy) + "%")
+
+        st3, st4 = st.columns(2)
+        st.button('Approve')
+        st.button('Reject')
+
+        st.markdown('--- ---')
+        st.markdown('#### Factors affecting the prediction in decreasing order')
+        st.pyplot(fig=st.session_state.fig)
+        st.markdown('#### For more information check below')
+        st.markdown("- **Age**: age of the patient [years]")
+        st.markdown("- **Sex**: gender of the patient [M: Male, F: Female]")
+        st.markdown(
+            "- ChestPainType: chest pain type [TA: Typical Angina, ATA: Atypical Angina, NAP: Non-Anginal Pain, ASY: Asymptomatic]")
+        st.markdown("- **RestingBP**: resting blood pressure [mm Hg]")
+        st.markdown("- **Cholesterol**: serum cholesterol [mm/dl]")
+        st.markdown("- **FastingBS**: fasting blood sugar [1: if FastingBS > 120 mg/dl, 0: otherwise]")
+        st.markdown(
+            "- **RestingECG**: resting electrocardiogram results [Normal: Normal, ST: having ST-T wave abnormality (T wave inversions "
+            "and/or ST elevation or depression of > 0.05 mV), LVH: showing probable or definite left ventricular "
+            "hypertrophy by Estes' criteria]")
+        st.markdown("- **MaxHR**: maximum heart rate achieved [Numeric value between 60 and 202]")
+        st.markdown("- **ExerciseAngina**: exercise-induced angina [Y: Yes, N: No]")
+        st.markdown("- **Oldpeak**: oldpeak = ST [Numeric value measured in depression]")
+        st.markdown("- **ST_Slope**: the slope of the peak exercise ST segment [Up: upsloping, Flat: flat, Down: downsloping]")
 
 
     with st.sidebar:

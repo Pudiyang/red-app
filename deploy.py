@@ -1,5 +1,8 @@
 import pandas as pd
 import joblib
+import matplotlib.pyplot as plt
+
+
 
 # Load the model
 clf_model = joblib.load("rfc_model.pkl")
@@ -44,40 +47,20 @@ def predict_hd(Age, Sex, ChestPainType, RestingBP, Cholesterol, FastingBS,
         ST_Slope = 2
 
     # Perform the prediction
-    predict_output = clf_model.predict(
-        pd.DataFrame([[Age, Sex, ChestPainType, RestingBP, Cholesterol, FastingBS, RestingECG,
-                       MaxHR, ExerciseAngina, Oldpeak, ST_Slope]],
-                     columns=['Age', 'Sex', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBS', 'RestingECG',
-                              'MaxHR', 'ExerciseAngina', 'Oldpeak', 'ST_Slope']))
-    print(predict_output.tolist())
-    return predict_output
 
+    test_df = pd.DataFrame([[Age, Sex, ChestPainType, RestingBP, Cholesterol, FastingBS, RestingECG,
+                   MaxHR, ExerciseAngina, Oldpeak, ST_Slope]],
+                 columns=['Age', 'Sex', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBS', 'RestingECG',
+                          'MaxHR', 'ExerciseAngina', 'Oldpeak', 'ST_Slope'])
+    predict_output = clf_model.predict(test_df).tolist()
+    probability = clf_model.predict_proba(test_df).tolist()
+    fe = clf_model.feature_importances_.argsort()
 
+    fig, ax = plt.subplots()
+    ax.barh(test_df.columns[fe], clf_model.feature_importances_[fe])
+    ax.set_xlabel("Feature Importance")
+    ax.set_title('Feature Importance chart')
 
-
-# st.title('Head Disease Prediction')
-#
-# st.header('Enter the mandatory categorical fields')
-#
-# Sex = st.selectbox('Sex:', ['F', 'M'])
-# ChestPainType = st.selectbox('ChestPainType:', ['ASY', 'ATA', 'NAP', 'TA'])
-# RestingECG = st.selectbox('RestingECG:', ['LVH', 'Normal', 'ST'])
-# ExerciseAngina = st.selectbox('ExerciseAngina:', ['N', 'Y'])
-# ST_Slope = st.selectbox('ST_Slope:', ['Down', 'Flat', 'Up'])
-#
-# st.header('Enter the mandatory readings fields')
-# Age = st.number_input('Age:', min_value=0, max_value=100, value=1)
-# RestingBP = st.number_input('RestingBP:', min_value=0, max_value=1000, value=1)
-# Cholesterol = st.number_input('Cholesterol:', min_value=0, max_value=1000, value=1)
-# FastingBS = st.number_input('FastingBS:', min_value=0, max_value=100, value=1)
-# MaxHR = st.number_input('MaxHR:', min_value=0, max_value=1000, value=1)
-# Oldpeak = st.number_input('Oldpeak:', min_value=0, max_value=100, value=1)
-#
-#
-# if st.button('Predict Heart Disease'):
-#     hd = predict_hd(Age, Sex, ChestPainType, RestingBP, Cholesterol, FastingBS, RestingECG,
-#                        MaxHR, ExerciseAngina, Oldpeak, ST_Slope)
-#     print(hd)
-#     st.success(f'Your prediction is {hd[0]}')
+    return predict_output[0], round(probability[0][1], 4), fig
 
 

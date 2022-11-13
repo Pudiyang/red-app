@@ -3,9 +3,12 @@ import time
 import extra_streamlit_components as stx
 import streamlit as st
 import pandas as pd
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
 from PIL import Image
 from deploy import predict_hd
-import matplotlib.pyplot as plt
 
 def check_password():
     def check_password():
@@ -27,6 +30,8 @@ if check_password():
         st.session_state.step = 1
     def go_to_prediction():
         st.session_state.step = 2
+    def go_to_email_sending():
+        st.session_state.step = 3
 
     def routing_zero():
         def handle_patient_profile() -> None:
@@ -57,10 +62,10 @@ if check_password():
 
         def handle_get_prediction() -> None:
             # interact with AI module
-            result, accuracy, fig = predict_hd(st.session_state.age, st.session_state.gender, st.session_state.cpt \
-                       , st.session_state.rbp, st.session_state.cho, st.session_state.fbs \
-                       , st.session_state.ecg, st.session_state.mhr, st.session_state.ea \
-                       , st.session_state.op, st.session_state.ss)
+            result, accuracy, fig = predict_hd(st.session_state.age, st.session_state.gender, st.session_state.cpt
+                                               , st.session_state.rbp, st.session_state.cho, st.session_state.fbs
+                                               , st.session_state.ecg, st.session_state.mhr, st.session_state.ea
+                                               , st.session_state.op, st.session_state.ss)
             if result == 1:
                 st.session_state['result'] = 'YES'
             else:
@@ -95,8 +100,7 @@ if check_password():
         with st2:
             st.metric(label="Accuracy", value=str(st.session_state.accuracy) + "%")
 
-        st3, st4 = st.columns(2)
-        st.button('Approve')
+        st.button('Approve', on_click=go_to_email_sending)
         st.button('Reject')
 
         st.markdown('--- ---')
@@ -118,6 +122,51 @@ if check_password():
         st.markdown("- **ExerciseAngina**: exercise-induced angina [Y: Yes, N: No]")
         st.markdown("- **Oldpeak**: oldpeak = ST [Numeric value measured in depression]")
         st.markdown("- **ST_Slope**: the slope of the peak exercise ST segment [Up: upsloping, Flat: flat, Down: downsloping]")
+
+    def routing_three():
+        #def () -> None:
+            st.markdown("### Sending Report")
+            if 'count' not in st.session_state:
+                st.session_state.count = 0
+
+            msg_from = '1215139249@qq.com'
+            passwd = 'wcedtcjsqjzabaeb'
+            with st.form("Sending email"):
+                receiver = st.text_input("Receiver",str(st.session_state.patient_id))
+                to = [receiver]
+
+                # 设置邮件内容
+                msg = MIMEMultipart()
+                content = st.text_area("Feedback to the patient",'Dear Patient, \nYour heart health report has been successfully generated. Please find an attached report with the email. \nThank you!')
+                msg.attach(MIMEText(content, 'plain', 'utf-8'))
+
+                # attachment open
+                image_data1 = open('test1.png', 'rb')
+                msg.attach(MIMEImage(image_data1.read()))
+                image_data1.close()
+                image_data2 = open('test2.png', 'rb')
+                msg.attach(MIMEImage(image_data2.read()))
+                image_data2.close()
+
+                # 设置邮件主题
+                theme = st.text_input("Subject",'Check out your heart health prediction report!')
+
+                msg['Subject'] = theme
+
+                msg['From'] = msg_from
+
+
+                # 开始发送
+                submitted = st.form_submit_button("Send")
+                if submitted:
+                    st.session_state.count += 1
+                    if st.session_state.count > 1:
+                        st.warning("Don't send too many email！")
+                    else:
+                        s = smtplib.SMTP_SSL("smtp.qq.com", 465)
+                        s.login(msg_from, passwd)
+                        s.sendmail(msg_from, to, msg.as_string())
+                        st.success("Done！")
 
 
     with st.sidebar:
@@ -142,6 +191,7 @@ if check_password():
             stx.TabBarItemData(id=0, title="Profile", description="Create Patient Profile"),
             stx.TabBarItemData(id=1, title="Features", description="Input Clinical Features"),
             stx.TabBarItemData(id=2, title="Prediction", description="Get prediction from AI model "),
+            stx.TabBarItemData(id=3, title="Sharing", description="Share email autonomously")
         ], default=st.session_state.step)
         step = int(step_str)
 
@@ -152,3 +202,5 @@ if check_password():
             routing_one()
         elif step == 2:
             routing_two()
+        elif step == 3:
+            routing_three()

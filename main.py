@@ -24,6 +24,8 @@ def check_password():
 
 
 if check_password():
+    def go_to_homepage():
+        del st.session_state['step']
     def go_to_create_profile():
         st.session_state.step = 0
     def go_to_input_features():
@@ -34,6 +36,17 @@ if check_password():
         st.session_state.step = 3
 
     def routing_zero():
+        def save_patient():
+            patient = {
+                'First Name': [st.session_state.first_name],
+                'Last Name': [st.session_state.last_name],
+                'Email': [st.session_state.email],
+                'Sex': [st.session_state.gender],
+                'Age': [st.session_state.birthday]
+            }
+            dataframe = pd.DataFrame(patient)
+            dataframe.to_csv('Patients.csv', mode='a', index=False, header=False)
+
         def handle_patient_profile() -> None:
             if not st.session_state.first_name:
                 st.error("First Name is required!", icon="🚨")
@@ -44,6 +57,7 @@ if check_password():
             if not st.session_state.email:
                 st.error("Email is required!", icon="🚨")
                 return
+            save_patient()
             st.session_state['patient_id'] = st.session_state.email
             st.success(st.session_state.first_name + "'s profile created successfully!", icon="✅")
             go_to_input_features()
@@ -54,7 +68,7 @@ if check_password():
             st.selectbox('Gender', ['M', 'F'], key='gender')
             st.text_input('Phone Number', key='phone_number')
             st.text_input('Email', key='email')
-            st.date_input('Date of Birth', key='birthday')
+            st.number_input('Age:', min_value=0, max_value=100, value=1, key='birthday')
             st.form_submit_button('Save and Continue', on_click=handle_patient_profile)
 
 
@@ -66,12 +80,12 @@ if check_password():
                                                , st.session_state.rbp, st.session_state.cho, st.session_state.fbs
                                                , st.session_state.ecg, st.session_state.mhr, st.session_state.ea
                                                , st.session_state.op, st.session_state.ss)
-            if result == 1:
-                st.session_state['result'] = 'YES'
-            else:
-                st.session_state['result'] = 'NO'
+            # convert the data and save it to the session
+            if result == 1: st.session_state['result'] = 'YES'
+            else: st.session_state['result'] = 'NO'
             st.session_state['accuracy'] = accuracy * 100
             st.session_state['fig'] = fig
+            # route to the report page
             go_to_prediction()
 
 
@@ -91,37 +105,20 @@ if check_password():
 
 
     def routing_two():
+        if 'result' not in st.session_state:
+            st.markdown("### Please input all clinical features to get the report")
+        else:
+            st.markdown("### Prediction Report")
+            st1, st2 = st.columns(2)
+            st.metric(label="Email", value=st.session_state.patient_id)
+            with st1:
+                st.metric(label="Prediction Result", value=st.session_state.result, help='Yes: has HF, No: Does not have HF')
+            with st2:
+                st.metric(label="Accuracy", value=str(st.session_state.accuracy) + "%")
 
-        st.markdown("### Prediction Report")
-        st1, st2 = st.columns(2)
-        st.metric(label="Email", value=st.session_state.patient_id)
-        with st1:
-            st.metric(label="Prediction Result", value=st.session_state.result, help='Yes: has HF, No: Does not have HF')
-        with st2:
-            st.metric(label="Accuracy", value=str(st.session_state.accuracy) + "%")
-
-        st.button('Approve', on_click=go_to_email_sending)
-        st.button('Reject')
-
+            st.button('Approve', on_click=go_to_email_sending)
+            st.button('Reject', on_click=go_to_homepage)
         st.markdown('--- ---')
-        st.markdown('#### Factors affecting the prediction in decreasing order')
-        st.pyplot(fig=st.session_state.fig)
-        st.markdown('#### For more information check below')
-        st.markdown("- **Age**: age of the patient [years]")
-        st.markdown("- **Sex**: gender of the patient [M: Male, F: Female]")
-        st.markdown(
-            "- ChestPainType: chest pain type [TA: Typical Angina, ATA: Atypical Angina, NAP: Non-Anginal Pain, ASY: Asymptomatic]")
-        st.markdown("- **RestingBP**: resting blood pressure [mm Hg]")
-        st.markdown("- **Cholesterol**: serum cholesterol [mm/dl]")
-        st.markdown("- **FastingBS**: fasting blood sugar [1: if FastingBS > 120 mg/dl, 0: otherwise]")
-        st.markdown(
-            "- **RestingECG**: resting electrocardiogram results [Normal: Normal, ST: having ST-T wave abnormality (T wave inversions "
-            "and/or ST elevation or depression of > 0.05 mV), LVH: showing probable or definite left ventricular "
-            "hypertrophy by Estes' criteria]")
-        st.markdown("- **MaxHR**: maximum heart rate achieved [Numeric value between 60 and 202]")
-        st.markdown("- **ExerciseAngina**: exercise-induced angina [Y: Yes, N: No]")
-        st.markdown("- **Oldpeak**: oldpeak = ST [Numeric value measured in depression]")
-        st.markdown("- **ST_Slope**: the slope of the peak exercise ST segment [Up: upsloping, Flat: flat, Down: downsloping]")
 
     def routing_three():
         #def () -> None:

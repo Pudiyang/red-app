@@ -84,7 +84,6 @@ if check_password():
             if result == 1: st.session_state['result'] = 'YES'
             else: st.session_state['result'] = 'NO'
             st.session_state['accuracy'] = accuracy * 100
-            st.session_state['fig'] = fig
             # route to the report page
             go_to_prediction()
 
@@ -120,6 +119,23 @@ if check_password():
             st.button('Reject', on_click=go_to_homepage)
         st.markdown('--- ---')
 
+        st.markdown('#### For more information check below')
+        st.markdown("- **Age**: age of the patient [years]")
+        st.markdown("- **Sex**: gender of the patient [M: Male, F: Female]")
+        st.markdown(
+            "- ChestPainType: chest pain type [TA: Typical Angina, ATA: Atypical Angina, NAP: Non-Anginal Pain, ASY: Asymptomatic]")
+        st.markdown("- **RestingBP**: resting blood pressure [mm Hg]")
+        st.markdown("- **Cholesterol**: serum cholesterol [mm/dl]")
+        st.markdown("- **FastingBS**: fasting blood sugar [1: if FastingBS > 120 mg/dl, 0: otherwise]")
+        st.markdown(
+            "- **RestingECG**: resting electrocardiogram results [Normal: Normal, ST: having ST-T wave abnormality (T wave inversions "
+            "and/or ST elevation or depression of > 0.05 mV), LVH: showing probable or definite left ventricular "
+            "hypertrophy by Estes' criteria]")
+        st.markdown("- **MaxHR**: maximum heart rate achieved [Numeric value between 60 and 202]")
+        st.markdown("- **ExerciseAngina**: exercise-induced angina [Y: Yes, N: No]")
+        st.markdown("- **Oldpeak**: oldpeak = ST [Numeric value measured in depression]")
+        st.markdown(
+            "- **ST_Slope**: the slope of the peak exercise ST segment [Up: upsloping, Flat: flat, Down: downsloping]")
     def routing_three():
         #def () -> None:
             st.markdown("### Sending Report")

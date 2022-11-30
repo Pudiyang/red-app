@@ -16,8 +16,8 @@ def check_password():
 
     if "password_correct" not in st.session_state:
         st.markdown("# Log in")
-        st.text_input("Username", key="username")
-        st.text_input("Password", type="password", key="password")
+        st.text_input("Username", key="username", value="doctor_admin")
+        st.text_input("Password", type="password", key="password", value="password")
         st.button("Log in", on_click=check_password)
     else:
         return st.session_state["password_correct"]

@@ -113,7 +113,7 @@ if check_password():
             with st1:
                 st.metric(label="Prediction Result", value=st.session_state.result, help='Yes: has HF, No: Does not have HF')
             with st2:
-                st.metric(label="Accuracy", value=str(st.session_state.accuracy) + "%")
+                st.metric(label="Probability", value=str(st.session_state.accuracy) + "%")
 
             st.button('Approve', on_click=go_to_email_sending)
             st.button('Reject', on_click=go_to_homepage)

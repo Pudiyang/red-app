@@ -26,6 +26,7 @@ def check_password():
 if check_password():
     def go_to_homepage():
         del st.session_state['step']
+        st.experimental_rerun()
     def go_to_create_profile():
         st.session_state.step = 0
     def go_to_input_features():
@@ -109,13 +110,15 @@ if check_password():
         else:
             st.markdown("### Prediction Report")
             st1, st2 = st.columns(2)
-            st.metric(label="Email", value=st.session_state.patient_id)
             with st1:
                 st.metric(label="Prediction Result", value=st.session_state.result, help='Yes: has HF, No: Does not have HF')
             with st2:
                 st.metric(label="Probability", value=str(st.session_state.accuracy) + "%")
-            st.button('Approve', on_click=go_to_email_sending)
-            st.button('Reject', on_click=go_to_homepage)
+            st3, st4 = st.columns([1, 7])
+            with st3:
+                st.button('Approve', on_click=go_to_email_sending)
+            with st4:
+                st.button('Reject', on_click=go_to_homepage)
         st.markdown('--- ---')
 
         st.markdown('#### For more information check below')
@@ -178,8 +181,7 @@ if check_password():
                         s = smtplib.SMTP_SSL("smtp.qq.com", 465)
                         s.login(msg_from, passwd)
                         s.sendmail(msg_from, to, msg.as_string())
-                        st.success("Done！")
-
+                        go_to_homepage()
 
     with st.sidebar:
         # Header

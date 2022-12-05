@@ -114,7 +114,7 @@ if check_password():
                 st.metric(label="Prediction Result", value=st.session_state.result, help='Yes: has HF, No: Does not have HF')
             with st2:
                 st.metric(label="Probability", value=str(st.session_state.accuracy) + "%")
-            st3, st4 = st.columns([1, 7])
+            st3, st4 = st.columns([1, 6])
             with st3:
                 st.button('Approve', on_click=go_to_email_sending)
             with st4:

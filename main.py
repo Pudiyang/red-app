@@ -65,7 +65,7 @@ if check_password():
         with st.form(key='PP'):
             st.text_input('First Name', key='first_name')
             st.text_input('Last Name', key='last_name')
-            st.selectbox('Gender', ['M', 'F'], key='gender')
+            st.selectbox('Gender', ['F', 'M'], key='gender')
             st.text_input('Phone Number', key='phone_number')
             st.text_input('Email', key='email')
             st.number_input('Age:', min_value=0, max_value=100, value=1, key='birthday')
@@ -89,17 +89,17 @@ if check_password():
 
 
         with st.form(key='IF'):
-            st.selectbox('Gender', ['M', 'F'], key='gender')
-            st.selectbox('ChestPainType:', ['ASY', 'ATA', 'NAP', 'TA'], key='cpt')
-            st.selectbox('RestingECG:', ['LVH', 'Normal', 'ST'], key='ecg')
+            st.selectbox('Gender', ['F', 'M'], key='gender')
+            st.selectbox('ChestPainType:', ['NAP','ASY', 'ATA', 'TA'], key='cpt')
+            st.selectbox('RestingECG:', ['Normal', 'LVH', 'ST'], key='ecg')
             st.selectbox('ExerciseAngina:', ['N', 'Y'], key='ea')
-            st.selectbox('ST_Slope:', ['Down', 'Flat', 'Up'], key='ss')
-            st.number_input('Age:', min_value=0, max_value=100, value=1, key='age')
-            st.number_input('RestingBP:', min_value=0, max_value=1000, value=1, key='rbp')
-            st.number_input('Cholesterol:', min_value=0, max_value=1000, value=1, key='cho')
-            st.number_input('FastingBS:', min_value=0, max_value=100, value=1, key='fbs')
-            st.number_input('MaxHR:', min_value=0, max_value=1000, value=1, key='mhr')
-            st.number_input('Oldpeak:', min_value=0, max_value=100, value=1, key='op')
+            st.selectbox('ST_Slope:', ['Up', 'Down', 'Flat'], key='ss')
+            st.number_input('Age:', min_value=0, max_value=100, value=37, key='age')
+            st.number_input('RestingBP:', min_value=0, max_value=1000, value=130, key='rbp')
+            st.number_input('Cholesterol:', min_value=0, max_value=1000, value=211, key='cho')
+            st.number_input('FastingBS:', min_value=0, max_value=100, value=0, key='fbs')
+            st.number_input('MaxHR:', min_value=0, max_value=1000, value=142, key='mhr')
+            st.number_input('Oldpeak:', min_value=0, max_value=100, value=0, key='op')
             st.form_submit_button('Get Prediction', on_click=handle_get_prediction)
 
 
@@ -114,7 +114,6 @@ if check_password():
                 st.metric(label="Prediction Result", value=st.session_state.result, help='Yes: has HF, No: Does not have HF')
             with st2:
                 st.metric(label="Probability", value=str(st.session_state.accuracy) + "%")
-
             st.button('Approve', on_click=go_to_email_sending)
             st.button('Reject', on_click=go_to_homepage)
         st.markdown('--- ---')
@@ -123,7 +122,7 @@ if check_password():
         st.markdown("- **Age**: age of the patient [years]")
         st.markdown("- **Sex**: gender of the patient [M: Male, F: Female]")
         st.markdown(
-            "- ChestPainType: chest pain type [TA: Typical Angina, ATA: Atypical Angina, NAP: Non-Anginal Pain, ASY: Asymptomatic]")
+            "- **ChestPainType**: chest pain type [TA: Typical Angina, ATA: Atypical Angina, NAP: Non-Anginal Pain, ASY: Asymptomatic]")
         st.markdown("- **RestingBP**: resting blood pressure [mm Hg]")
         st.markdown("- **Cholesterol**: serum cholesterol [mm/dl]")
         st.markdown("- **FastingBS**: fasting blood sugar [1: if FastingBS > 120 mg/dl, 0: otherwise]")
@@ -194,7 +193,7 @@ if check_password():
         st.button("Create New Patient Profile", on_click=go_to_create_profile)
         df = pd.read_csv('Patients.csv')
         st.table(df)
-
+        st.markdown('--- ---')
         patient_id = st.selectbox('Choose Patient', [i[2] for i in df.values.tolist()])
         st.session_state['patient_id'] = patient_id
         st.button("Input Features for Chosen Patient", on_click=go_to_input_features)
